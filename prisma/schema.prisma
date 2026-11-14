@@ -19,33 +19,40 @@ enum ReportType {
   NON_EMERGENCY
 }
 
-model Report {
-  id          String   @id @default(cuid())
-  reportId    String      @unique
-  type        ReportType
-  title       String
-  description String
-  reportType  String
-  location    String?
-  latitude    Float?
-  longitude   Float?
-  image       String?
-  status      ReportStatus @default(PENDING)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  @@index([reportId])
-}
-
-model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  name     String
-  password String
-  role     Role     @default(USER)
-}
-
 enum Role {
   ADMIN
   MODERATOR
   USER
-} 
+}
+
+/// An anonymous incident report. No reporter identity is stored.
+model Report {
+  id          String       @id @default(cuid())
+  /// Public tracking ID handed to the reporter (16 hex chars, unique).
+  reportId    String       @unique
+  type        ReportType
+  title       String
+  description String
+  /// Incident category, e.g. "Theft" or "Fire Outbreak".
+  reportType  String
+  location    String?
+  latitude    Float?
+  longitude   Float?
+  /// Optional photo stored as a base64 data URL.
+  image       String?
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+/// Staff account (ADMIN / MODERATOR) or a regular signed-up USER.
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  name     String
+  password String
+  role     Role   @default(USER)
+}
