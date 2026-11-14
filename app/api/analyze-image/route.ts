@@ -1,47 +1,53 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
+import { ANALYSIS_PROMPT, parseAnalysis, splitDataUrl } from "@/lib/analysis";
+import { jsonError, parseJsonBody, tooManyRequests } from "@/lib/http";
+import { clientKey, createRateLimiter } from "@/lib/rate-limit";
+import { analyzeImageSchema } from "@/lib/validation";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const limiter = createRateLimiter({ limit: 10, windowMs: 10 * 60 * 1000 });
 
+/** POST /api/analyze-image: drafts title/category/description from a photo. */
 export async function POST(request: Request) {
-  try {
-    const { image } = await request.json();
-    const base64Data = image.split(",")[1];
-
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-    const prompt = `Analyze this emergency situation image and respond in this exact format without any asterisks or bullet points:
-TITLE: Write a clear, brief title
-TYPE: Choose one (Theft, Fire Outbreak, Medical Emergency, Natural Disaster, Violence, or Other)
-DESCRIPTION: Write a clear, concise description`;
-
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          data: base64Data,
-          mimeType: "image/jpeg",
-        },
-      },
-    ]);
-
-    const text = await result.response.text(); // Ensure text() is awaited
-
-    // Parse the response more precisely
-    const titleMatch = text.match(/TITLE:\s*(.+)/);
-    const typeMatch = text.match(/TYPE:\s*(.+)/);
-    const descMatch = text.match(/DESCRIPTION:\s*(.+)/);
-
-    return NextResponse.json({
-      title: titleMatch?.[1]?.trim() || "",
-      reportType: typeMatch?.[1]?.trim() || "",
-      description: descMatch?.[1]?.trim() || "",
-    });
-  } catch (error) {
-    console.error("Image analysis error:", error);
-    return NextResponse.json(
-      { error: "Failed to analyze image" },
-      { status: 500 }
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return jsonError(
+      503,
+      "Photo analysis is not configured. Please fill in the details.",
     );
+  }
+
+  const rate = limiter(clientKey(request, "analyze-image"));
+  if (!rate.ok) return tooManyRequests(rate);
+
+  const body = await parseJsonBody(request, analyzeImageSchema, 5_000_000);
+  if (!body.ok) return body.response;
+
+  const parts = splitDataUrl(body.data.image);
+  if (!parts) return jsonError(422, "Image must be a base64 data URL");
+
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    const result = await ai.models.generateContent({
+      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: ANALYSIS_PROMPT }, { inlineData: parts }],
+        },
+      ],
+    });
+
+    const analysis = parseAnalysis(result.text ?? "");
+    if (!analysis) {
+      return jsonError(
+        502,
+        "Could not understand the photo. Please fill in the details.",
+      );
+    }
+    return NextResponse.json(analysis);
+  } catch (error) {
+    console.error("Image analysis failed:", error);
+    return jsonError(502, "Photo analysis failed. Please fill in the details manually.");
   }
 }
