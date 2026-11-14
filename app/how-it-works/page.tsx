@@ -1,267 +1,129 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import {
+  ArrowRight,
+  ClipboardList,
+  Info,
+  KeyRound,
+  Search,
+  ShieldCheck,
+  UserCheck,
+} from "lucide-react";
+import { ButtonLink } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
-export default function HowItWorks() {
+export const metadata: Metadata = {
+  title: "How it works",
+  description: "What happens to an anonymous report after you submit it on SafeReport.",
+};
+
+const STEPS = [
+  {
+    icon: ClipboardList,
+    title: "Submit your report",
+    text: "Choose emergency or non-emergency, pick a category and describe what happened. A photo and location are optional but help responders. If you add a photo, it can draft the title and description for you; you can edit everything before sending.",
+  },
+  {
+    icon: KeyRound,
+    title: "Receive a private report ID",
+    text: "The server generates a random 16-character ID for your report. It is shown once on screen. Copy it: it is the only way to look the report up again.",
+  },
+  {
+    icon: UserCheck,
+    title: "Moderators review it",
+    text: "Authorised staff see new reports in a dashboard, sorted by date and filterable by urgency and status. They mark reports as in progress, resolved or dismissed.",
+  },
+  {
+    icon: Search,
+    title: "Track progress",
+    text: "Enter your ID on the tracking page to see the current status and when it was last updated, with no account required.",
+  },
+];
+
+const PRIVACY = [
+  {
+    title: "What is stored",
+    text: "The report type, category, title, description, the location you enter and an optional photo.",
+  },
+  {
+    title: "What is not stored",
+    text: "No name, email, phone number or account is attached to a report. The app does not save IP addresses with reports.",
+  },
+  {
+    title: "Who can see it",
+    text: "Signed-in moderators see full reports. Anyone with the report ID can see its status and text, but never the photo or exact coordinates.",
+  },
+];
+
+export default function HowItWorksPage() {
   return (
-    <div className="relative min-h-screen bg-black selection:bg-sky-500/20 overflow-hidden">
-      {/* Gradient Background */}
-      <div className="fixed inset-0 -z-10 min-h-screen">
-        <div className="absolute inset-0 h-full bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.03),transparent_50%)]" />
-        <div className="absolute inset-0 h-full bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.04),transparent_70%)]" />
-      </div>
+    <div className="container py-16 sm:py-20">
+      <PageHeader
+        eyebrow="Understanding the process"
+        icon={Info}
+        title={
+          <>
+            How SafeReport works
+            <span className="text-gradient mt-2 block text-2xl sm:text-3xl">
+              From submission to resolution
+            </span>
+          </>
+        }
+        description="A plain-language walkthrough of what happens to a report and what data is kept."
+      />
 
-      <main className="relative px-6 pt-32">
-        <div className="mx-auto max-w-5xl">
-          {/* Header Section */}
-          <div className="flex flex-col items-center text-center">
-            <div className="inline-flex h-9 items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/10 px-4 text-sm text-sky-400">
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              Understanding Our Process
-            </div>
-
-            <h1 className="mt-8 bg-gradient-to-b from-white to-white/80 bg-clip-text text-5xl font-bold tracking-tight text-transparent">
-              How SafeReport Works
-              <span className="block text-2xl mt-4 bg-gradient-to-r from-sky-400 to-blue-500 bg-clip-text text-transparent">
-                Your Safety is Our Priority
+      <ol className="mx-auto mt-14 grid max-w-3xl gap-4">
+        {STEPS.map(({ icon: Icon, title, text }, index) => (
+          <li key={title}>
+            <Card className="flex gap-5 p-6">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <Icon className="size-6" aria-hidden="true" />
               </span>
-            </h1>
+              <div>
+                <p className="text-sm font-medium text-accent">Step {index + 1}</p>
+                <h2 className="mt-1 text-xl font-semibold">{title}</h2>
+                <p className="mt-2 leading-relaxed text-muted-foreground">{text}</p>
+              </div>
+            </Card>
+          </li>
+        ))}
+      </ol>
 
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-400">
-              Learn how we protect your identity while ensuring your report
-              reaches the right authorities.
-            </p>
+      <section aria-labelledby="privacy-heading" className="mx-auto mt-16 max-w-5xl">
+        <Card className="p-6 sm:p-10">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="size-6 text-accent" aria-hidden="true" />
+            <h2 id="privacy-heading" className="text-2xl font-bold tracking-tight">
+              Your data, plainly
+            </h2>
           </div>
-
-          {/* Process Steps */}
-          <div className="mt-24 grid gap-12">
-            {[
-              {
-                step: "01",
-                title: "Submit Your Report",
-                description:
-                  "Fill out our secure form with as much detail as possible. No personal information is required. You can include photos, videos, or documents if available.",
-                icon: (
-                  <svg
-                    className="h-6 w-6 text-sky-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                step: "02",
-                title: "Encryption & Anonymization",
-                description:
-                  "Your report is immediately encrypted using military-grade protocols. All identifying metadata is stripped from your submission, including IP address and device information.",
-                icon: (
-                  <svg
-                    className="h-6 w-6 text-sky-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                step: "03",
-                title: "Verification & Routing",
-                description:
-                  "Our system verifies the report's jurisdiction and automatically routes it to the appropriate law enforcement agency. The entire process maintains your anonymity.",
-                icon: (
-                  <svg
-                    className="h-6 w-6 text-sky-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                step: "04",
-                title: "Secure Communication Channel",
-                description:
-                  "If needed, law enforcement can communicate with you through our encrypted platform using your anonymous report ID. You maintain control over the conversation.",
-                icon: (
-                  <svg
-                    className="h-6 w-6 text-sky-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                ),
-              },
-            ].map((step, i) => (
-              <div
-                key={i}
-                className="group relative overflow-hidden rounded-2xl bg-zinc-900 p-8 transition-all hover:bg-zinc-800/80"
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-sky-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                <div className="relative flex gap-6">
-                  <div className="flex-shrink-0">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-500/10">
-                      {step.icon}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-sky-400">
-                      Step {step.step}
-                    </div>
-                    <h3 className="mt-2 text-xl font-medium text-white">
-                      {step.title}
-                    </h3>
-                    <p className="mt-3 text-base leading-relaxed text-zinc-400">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
+          <dl className="mt-8 grid gap-8 md:grid-cols-3">
+            {PRIVACY.map((item) => (
+              <div key={item.title}>
+                <dt className="font-semibold">{item.title}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {item.text}
+                </dd>
               </div>
             ))}
-          </div>
+          </dl>
+          <p className="mt-8 text-sm text-muted-foreground">
+            Anonymity also depends on what you write: avoid details that could identify
+            you.
+          </p>
+        </Card>
+      </section>
 
-          {/* Security Features */}
-          <div className="mt-24 rounded-2xl bg-zinc-900 p-8">
-            <h2 className="text-2xl font-bold text-white text-center mb-8">
-              Security Measures
-            </h2>
-            <div className="grid gap-6 sm:grid-cols-3">
-              {[
-                {
-                  title: "End-to-End Encryption",
-                  description: "All data is encrypted in transit and at rest",
-                  icon: (
-                    <svg
-                      className="h-6 w-6 text-sky-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
-                      />
-                    </svg>
-                  ),
-                },
-                {
-                  title: "No Logs Policy",
-                  description: "We never store IP addresses or user metadata",
-                  icon: (
-                    <svg
-                      className="h-6 w-6 text-sky-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                      />
-                    </svg>
-                  ),
-                },
-                {
-                  title: "Regular Audits",
-                  description: "Independent security firms verify our systems",
-                  icon: (
-                    <svg
-                      className="h-6 w-6 text-sky-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                      />
-                    </svg>
-                  ),
-                },
-              ].map((feature, i) => (
-                <div key={i} className="text-center p-6">
-                  <div className="flex justify-center mb-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-500/10">
-                      {feature.icon}
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-medium text-white mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-zinc-400">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA Section */}
-          <div className="mt-24 mb-20 text-center">
-            <h2 className="text-2xl font-bold text-white mb-6">
-              Ready to Make a Report?
-            </h2>
-            <button className="group relative inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-sky-500 px-8 text-sm font-medium text-white transition-all hover:bg-sky-400">
-              Start Anonymous Report
-              <svg
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 12h14M12 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </main>
+      <div className="mt-16 text-center">
+        <h2 className="text-2xl font-bold tracking-tight">Ready to make a report?</h2>
+        <ButtonLink href="/submit-report" size="lg" className="group mt-6">
+          Start an anonymous report
+          <ArrowRight
+            className="transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </ButtonLink>
+      </div>
     </div>
   );
 }
